@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { CITY, REWARDS } from './config.js';
 import { clamp } from './mathUtils.js';
-import { store, telemetry, pushToast } from '../state/store.js';
+import { store, telemetry, pushToast } from './store.js';
 import { City } from './City.js';
 import { TrafficLights, RED } from './TrafficLights.js';
 import { Traffic } from './Traffic.js';

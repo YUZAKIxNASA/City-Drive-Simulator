@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGameState } from '../state/store.js';
+import { useGameState } from './store.js';
 
 const KEYS = [
   ['W', 'Accelerate'],

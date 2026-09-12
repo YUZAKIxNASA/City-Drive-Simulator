@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { telemetry } from '../state/store.js';
+import { telemetry } from './store.js';
 
 const MAX_KMH = 220;
 const START = 150; // degrees, 0 points right and angles run clockwise

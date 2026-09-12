@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { telemetry } from '../state/store.js';
+import { telemetry } from './store.js';
 
 const SIZE = 156;
 const SCALE = 0.6; // pixels per metre, so the disc covers roughly 130 m

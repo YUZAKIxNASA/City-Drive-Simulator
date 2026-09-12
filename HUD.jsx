@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { telemetry, useGameState } from '../state/store.js';
+import { telemetry, useGameState } from './store.js';
 import Speedometer from './Speedometer.jsx';
 import Minimap from './Minimap.jsx';
 
