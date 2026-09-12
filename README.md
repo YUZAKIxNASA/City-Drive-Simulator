@@ -4,7 +4,6 @@ A 3D city driving game that runs in the browser. Built with React, Vite and Thre
 Every asset is generated in code, so there are no textures, models or sound files to
 download and the whole project is just three runtime dependencies.
 
----
 
 ## 1. Install the dependencies
 
@@ -66,7 +65,6 @@ Pick whichever you have.
 3. That is all. `vite.config.js` sets `base: './'`, so the game also works from a
    subfolder such as `public_html/drive`.
 
----
 
 ## Controls
 
@@ -92,54 +90,135 @@ Four job types repeat in a loop and pay more as your level rises:
 
 - **Checkpoint run** - reach the marker.
 - **Parcel run** - collect at the first marker, deliver at the second.
-- **Beat the clock** - three checkpoints before the timer runs out.
+- **Beat the clock** - reach three checkpoints before the timer runs out.
 - **Valet duty** - stop inside a marked parking bay and hold still.
 
 You gain a level every three completed jobs. Crashing and running a red light cost money.
 
-## Project layout
+## Project structure
 
 ```
-index.html            page shell and boot splash
-server.js             tiny static server for Hostinger Node hosting
-vite.config.js        build configuration
-src/
-  main.jsx            React entry point
-  App.jsx             canvas plus overlay screens
-  styles.css          the whole visual style
-  state/store.js      shared state and per frame telemetry
-  game/
-    Game.js           renderer, game loop, everything wired together
-    config.js         all tuning numbers in one place
-    City.js           roads, blocks, buildings, props
-    Traffic.js        AI cars
-    TrafficLights.js  signal timing
-    Vehicle.js        player car model
-    VehiclePhysics.js handling model
-    CameraRig.js      chase and bonnet cameras
-    Collision.js      broad phase and vehicle response
-    Missions.js       job generation and scoring
-    Environment.js    sky, sun, fog, reflections
-    Effects.js        skid marks and objective marker
-    AudioEngine.js    synthesised sound
-    Controls.js       keyboard and touch input
-    textures.js       procedural textures
-    carParts.js       car geometry
-    geometryUtils.js  geometry helpers
-    mathUtils.js      small maths helpers
-  ui/                 HUD, speedometer, minimap, menus
+City-Drive-Simulator/
+├── index.html                 Vite HTML shell and boot screen
+├── package.json               Scripts and dependencies
+├── vite.config.js             Vite configuration
+├── server.js                  Production static server
+├── README.md                  Project documentation
+├── src/
+│   ├── main.jsx               React entry point
+│   ├── App.jsx                Canvas host and UI composition root
+│   ├── styles.css             Global visual styles
+│   ├── state/
+│   │   └── store.js           Shared state and frame telemetry
+│   ├── game/
+│   │   ├── Game.js            Renderer, loop, and system coordinator
+│   │   ├── config.js          Tuning values, colors, signals, and rewards
+│   │   ├── City.js            Roads, buildings, props, and colliders
+│   │   ├── Traffic.js         Non-player traffic and road following
+│   │   ├── TrafficLights.js   Signal timing and light state
+│   │   ├── Vehicle.js         Player vehicle scene object
+│   │   ├── VehiclePhysics.js  Arcade movement calculations
+│   │   ├── CameraRig.js       Chase and bonnet cameras
+│   │   ├── Collision.js       Collision detection and response
+│   │   ├── Missions.js        Mission generation and scoring
+│   │   ├── Environment.js     Sky, fog, sun, and lighting
+│   │   ├── Effects.js         Skid marks and objective markers
+│   │   ├── AudioEngine.js     Synthesised audio
+│   │   ├── Controls.js        Keyboard and touch input
+│   │   ├── textures.js        Procedural textures
+│   │   ├── carParts.js        Vehicle geometry and materials
+│   │   ├── geometryUtils.js   Three.js geometry helpers
+│   │   └── mathUtils.js       Shared math helpers
+│   └── ui/
+│       ├── HUD.jsx            In-game overlay
+│       ├── Speedometer.jsx    Speed and driving telemetry
+│       ├── Minimap.jsx        Player, target, and traffic map
+│       ├── StartScreen.jsx    Initial game screen
+│       ├── PauseMenu.jsx      Pause controls
+│       ├── MissionResult.jsx  Mission outcome screen
+│       ├── TouchControls.jsx  Mobile controls
+│       └── Toasts.jsx         Status notifications
 ```
+
+The source tree is separated by responsibility: `src/game/` owns simulation and
+Three.js rendering, `src/ui/` owns React presentation, and `src/state/` is the
+shared boundary between the two.
+
+## Architecture and data flow
+
+1. `index.html` loads `src/main.jsx`.
+2. `main.jsx` mounts `App` with React.
+3. `App.jsx` creates one `Game` instance against the canvas and selects overlays
+    from the shared store.
+4. `Game.init()` creates the renderer, scene, camera, city, traffic, vehicle,
+    missions, controls, effects, and audio engine.
+5. `Game.loop()` advances the fixed-step simulation and renders the scene.
+6. Discrete values such as screen, money, mission, level, and settings are written
+    to `src/state/store.js`.
+7. Fast-changing values such as speed, RPM, position, and target distance are
+    written to `telemetry`, which HUD components read without forcing a React tree
+    render every frame.
+
+The dependency direction is:
+
+```text
+src/main.jsx -> src/App.jsx -> src/game/Game.js
+                                     └──> src/ui/* -> src/state/store.js
+src/game/Game.js --------┘
+```
+
+### System responsibilities
+
+- `City.js` builds the five-by-five road grid, buildings, props, and collision boxes.
+- `Vehicle.js` owns the visible car; `VehiclePhysics.js` calculates its movement.
+- `Traffic.js` advances AI cars; `TrafficLights.js` controls signal phases.
+- `Missions.js` creates jobs and evaluates progress and rewards.
+- `Environment.js` controls the scene atmosphere and day/night lighting.
+- `Controls.js` normalizes keyboard and touch input into game commands.
+- `AudioEngine.js` synthesizes engine and event sounds after user interaction.
+
+## Development conventions
+
+- Keep simulation and Three.js changes inside `src/game/`.
+- Keep display and interaction components inside `src/ui/`.
+- Put persistent cross-layer state in `src/state/store.js`.
+- Put tunable gameplay values in `src/game/config.js` instead of scattering magic
+   numbers through system code.
+- Do not edit `dist/` directly; regenerate it with `npm run build`.
+
+## Troubleshooting
+
+### Vite cannot find `src/main.jsx`
+
+Run commands from the project root and confirm `src/main.jsx` exists. The script
+in `index.html` must point to `/src/main.jsx`.
+
+### The page is blank or WebGL fails
+
+Use a current browser, enable hardware acceleration, and check the browser console
+for a WebGL error. Older mobile devices may not support every renderer feature.
+
+### `npm start` says the build is missing
+
+Run `npm run build` first. The production server serves only the generated `dist/`
+folder and does not compile source files.
+
+### Audio does not play
+
+Click **Start driving** first. Browsers block Web Audio until the page receives a
+user gesture.
+
+### Deployment still shows an old version
+
+Run a fresh build and upload the contents of `dist/`. Hashed assets are cached by
+design, while `index.html` is served without caching.
 
 ## Known limitations
 
-- The physics is an arcade handling model, not a full tyre simulation. It is tuned to
-  feel good rather than to be accurate.
-- The AI cars follow the road network and stop for red lights and for the car in front,
-  but they do not react to anything unusual you do. They will happily be pushed around.
-- The city is a fixed five by five grid. It is compact on purpose so it stays fast.
-- All artwork is procedural, so buildings and cars are stylised rather than photoreal.
-- There is no save file. Money and level reset when you reload the page.
-- Sound is synthesised with the Web Audio API and only starts after you press
-  **Start driving**, because browsers require a click before playing audio.
-- Older phones will run it, but expect a lower frame rate. The renderer already lowers
-  the pixel ratio, shadow resolution and traffic count on mobile.
+- The physics is an arcade handling model, not a full tire simulation.
+- Traffic follows the prepared road network and does not understand every unusual
+   player behavior.
+- The city is fixed to a compact five-by-five grid.
+- Procedural artwork is stylized rather than photorealistic.
+- Money, score, level, and mission progress reset when the page reloads.
+- Older phones may have a lower frame rate despite mobile renderer adjustments.

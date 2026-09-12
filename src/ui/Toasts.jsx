@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGameState } from './store.js';
+import { useGameState } from '../state/store.js';
 
 export default function Toasts() {
   const { toasts } = useGameState();

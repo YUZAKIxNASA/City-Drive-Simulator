@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Game } from './Game.js';
-import { useGameState } from './store.js';
-import HUD from './HUD.jsx';
-import StartScreen from './StartScreen.jsx';
-import PauseMenu from './PauseMenu.jsx';
-import MissionResult from './MissionResult.jsx';
-import TouchControls from './TouchControls.jsx';
-import Toasts from './Toasts.jsx';
+import { Game } from './game/Game.js';
+import { useGameState } from './state/store.js';
+import HUD from './ui/HUD.jsx';
+import StartScreen from './ui/StartScreen.jsx';
+import PauseMenu from './ui/PauseMenu.jsx';
+import MissionResult from './ui/MissionResult.jsx';
+import TouchControls from './ui/TouchControls.jsx';
+import Toasts from './ui/Toasts.jsx';
 
 export default function App() {
   const canvasRef = useRef(null);
