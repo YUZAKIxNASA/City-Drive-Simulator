@@ -6,6 +6,7 @@ A 3D city driving game that runs in the browser. Built with React, Vite and Thre
 Every asset is generated in code, so there are no textures, models or sound files to
 download and the whole project is just three runtime dependencies.
 
+<img src="gif/CityDriveSimulator01.gif" width="100%">
 
 ## 1. Install the dependencies
 
